@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+//import logo from './logo.svg';
+import classes from './App.css';
 import Person from './Person/person';
 
 class App extends Component {
@@ -56,15 +56,9 @@ class App extends Component {
   }
 
   render() {
-    const style = {
-      backgroundColor: 'white',
-      font: 'inherit',
-      border: '1px solid blue',
-      padding: '8px',
-      cursor: 'pointer'
-    };
 
     let persons = null;
+    let btnClass = '';
 
     if (this.state.showPersons) {
       persons = (
@@ -79,16 +73,30 @@ class App extends Component {
                       />
           })}
         </div>
-      )
+      );
+
+      btnClass = classes.Red;
     }
 
+    const assignedClasses = [];
+
+    if(this.state.persons.length <= 2) {
+      assignedClasses.push(classes.red);
+    }
+
+    if(this.state.persons.length <= 1) {
+      assignedClasses.push(classes.bold);
+    }
+
+
     return (
-      <div className="App">
-        <h1>I'm Yiro Yi a react developer</h1>
-        <button onClick={this.togglePersonsHandler}
-          style={style}>Show</button>
-        {persons}
-      </div>
+        <div className={classes.App}>
+          <h1>I'm Yiro Yi a react developer</h1>
+          <p className={assignedClasses.join(' ')}>This is really working</p>
+          <button className={btnClass} onClick={this.togglePersonsHandler}
+            >Show</button>
+          {persons}
+        </div>
     );
   }
 }
