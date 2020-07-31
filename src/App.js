@@ -7,31 +7,52 @@ class App extends Component {
 
   state = {
     persons: [
-      { name: 'Yiro', age: 33 },
-      { name: 'Yujin', age: 29 },
-      { name: 'Kripto', age: 10 }
-    ]
+      { id: 1, name: 'Yiro', age: 33 },
+      { id: 2, name: 'Yujin', age: 29 },
+      { id: 3, name: 'Kripto', age: 10 }
+    ],
+      showPersons: false
   }
 
-  switchNameHandler = (newName) => {
-    // DON'T DO THIS this.state.persons[2].name = "Jaime";
-    this.setState({
-      persons: [
-        { name: newName, age: 33 },
-        { name: 'Tu', age: 29 },
-        { name: 'El', age: 10 }
-      ]
-    })
+  nameChangedHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id === id;
+    }); //Nos trae el indice de donde se detecto que hubo un cambio en el
+    //input
+
+    const person = {
+      ...this.state.persons[personIndex]
+    };
+    // crea una copia nueva unica del objecto que va a se modificado
+    //mediante el spread operator
+
+    person.name = event.target.value;
+    // el person name del nuevo objeto creado va a ser igual o lo que
+    // se escriba en el event target value , el event fue pasado como parametro
+
+    const persons = [...this.state.persons]; // vamos a crear una copia modifica
+    //ble de todo el state
+    persons[personIndex] = person;
+    //vamos a cambiar la perdona en el indice indicado con el nuevo objeto creado
+    // y su nuevo valor
+
+    this.setState({persons: persons});
+    // por ultimo seteamos el estado anterior que sea igual a al nueva copia
+    //modificada de nuestro estado y con esto hacemos two way binding.
   }
 
-  nameChangedHandler = (event) => {
-    this.setState({
-      persons: [
-        { name: 'Yiro', age: 33 },
-        { name: event.target.value, age: 29 },
-        { name: 'Kripto', age: 10 }
-      ]
-    })
+
+  deletePersonHandler = (personIndex) => {
+    //const persons = this.state.persons.slice(); //Slice create a new copy
+    const persons = [...this.state.persons];
+    persons.splice(personIndex, 1);
+    this.setState({persons: persons})
+  }
+
+
+  togglePersonsHandler = () => {
+    const doesShow = this.state.showPersons;
+    this.setState({ showPersons: !doesShow });
   }
 
   render() {
@@ -43,22 +64,30 @@ class App extends Component {
       cursor: 'pointer'
     };
 
+    let persons = null;
+
+    if (this.state.showPersons) {
+      persons = (
+        <div>
+          {this.state.persons.map((person, index)=>{
+            return <Person
+                      key={person.id}
+                      click = {this.deletePersonHandler.bind(this, index)}
+                      name={person.name}
+                      age={person.age}
+                      changed={(event) => this.nameChangedHandler(event, person.id)}
+                      />
+          })}
+        </div>
+      )
+    }
+
     return (
       <div className="App">
         <h1>I'm Yiro Yi a react developer</h1>
-        <button onClick={this.switchNameHandler.bind(this, 'Yiro Yi')}
-          style={style}>Switch name</button>
-        <Person
-          name={this.state.persons[0].name}
-          age={this.state.persons[0].age} >My hobbies: Coding</Person>
-        <Person
-          name={this.state.persons[1].name}
-          age={this.state.persons[1].age}
-          click={this.switchNameHandler.bind(this, 'Yiro Yuzin')}
-          changed={this.nameChangedHandler} />
-        <Person
-          name={this.state.persons[2].name}
-          age={this.state.persons[2].age} />
+        <button onClick={this.togglePersonsHandler}
+          style={style}>Show</button>
+        {persons}
       </div>
     );
   }
