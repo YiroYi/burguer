@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 //import logo from './logo.svg';
 import classes from './App.css';
-import Person from './Person/person';
+import Persons from '../components/Persons/Persons.js';
+import Cockpit from '../components/Cockpit/Cockpit';
+import withClass from '../hoc/withClass';
+import Aux from '../hoc/Aux';
 
 class App extends Component {
+  constructor(props) {
+    super(props); // inicializar el constructor
+    console.log('[App.js] constructor');
+  }
 
   state = {
     persons: [
@@ -11,7 +18,27 @@ class App extends Component {
       { id: 2, name: 'Yujin', age: 29 },
       { id: 3, name: 'Kripto', age: 10 }
     ],
-      showPersons: false
+      showPersons: false,
+      showCockpit: true,
+      changedCounter: 0
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    console.log('[App.js] getDerivedStateFromProps', props);
+    return state;
+  }
+
+  componentDidMount() {
+    console.log('[App.js] componentDidMount');
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('[App.js] shouldComponentUpdate');
+    return true;
+  }
+
+  componentDidUpdate() {
+    console.log('[App.js] componentDidUpdate');
   }
 
   nameChangedHandler = (event, id) => {
@@ -36,7 +63,12 @@ class App extends Component {
     //vamos a cambiar la perdona en el indice indicado con el nuevo objeto creado
     // y su nuevo valor
 
-    this.setState({persons: persons});
+    this.setState((prevState, props) => {
+      return {
+        persons: persons,
+        changedCounter: prevState.changedCounter + 1
+        };
+      });
     // por ultimo seteamos el estado anterior que sea igual a al nueva copia
     //modificada de nuestro estado y con esto hacemos two way binding.
   }
@@ -56,49 +88,31 @@ class App extends Component {
   }
 
   render() {
-
+    console.log('[App.js] render');
     let persons = null;
-    let btnClass = '';
+
 
     if (this.state.showPersons) {
-      persons = (
-        <div>
-          {this.state.persons.map((person, index)=>{
-            return <Person
-                      key={person.id}
-                      click = {this.deletePersonHandler.bind(this, index)}
-                      name={person.name}
-                      age={person.age}
-                      changed={(event) => this.nameChangedHandler(event, person.id)}
-                      />
-          })}
-        </div>
-      );
-
-      btnClass = classes.Red;
+      persons =
+          <Persons
+            persons={this.state.persons}
+            clicked={this.deletePersonHandler}
+            changed={this.nameChangedHandler}
+            />
     }
-
-    const assignedClasses = [];
-
-    if(this.state.persons.length <= 2) {
-      assignedClasses.push(classes.red);
-    }
-
-    if(this.state.persons.length <= 1) {
-      assignedClasses.push(classes.bold);
-    }
-
 
     return (
-        <div className={classes.App}>
-          <h1>I'm Yiro Yi a react developer</h1>
-          <p className={assignedClasses.join(' ')}>This is really working</p>
-          <button className={btnClass} onClick={this.togglePersonsHandler}
-            >Show</button>
+        <Aux>
+          <button onClick={()=>{this.setState({showCockpit: false})}} >Remove Cockpit</button>
+          { this.state.showCockpit ? (<Cockpit
+            showPersons={this.state.showPersons}
+            personsLength={this.state.persons.length}
+            clicked={this.togglePersonsHandler}
+          />): null}
           {persons}
-        </div>
+        </Aux>
     );
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
